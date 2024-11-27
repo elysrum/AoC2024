@@ -4,7 +4,6 @@ go 1.23.3
 
 require (
 	github.com/beefsack/go-astar v0.0.0-20200827232313-4ecf9e304482
-	github.com/nlowe/aoc2023 v0.0.0-20240901190928-bcfcd92dde42
 	github.com/pkg/profile v1.7.0
 	github.com/spf13/cobra v1.8.1
 	github.com/spf13/viper v1.19.0

@@ -54,7 +54,7 @@ func main() {
 }
 
 func goimports(file string) {
-	goimports := exec.Command("goimports", "-local", "github.com/elysrum/AoC2024", "-w", file)
+	goimports := exec.Command("goimports", "-local", "AoC2024", "-w", file)
 	if err := goimports.Run(); err != nil {
 		abort(err)
 	}

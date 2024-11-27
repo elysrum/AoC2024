@@ -14,10 +14,10 @@ import (
 	"github.com/spf13/viper"
 {{- if gt .N 0 }}
 {{ range $day := seq 1 .N }}
-	"challenge/day{{ $day }}"
+	"AoC2024/challenge/day{{ $day }}"
 {{- end }}
 {{- end}}
-	"challenge/example"
+	"AoC2024/challenge/example"
 )
 
 func addDays(root *cobra.Command) {
@@ -38,9 +38,9 @@ func NewRootCommand() *cobra.Command {
 	)
 
 	result := &cobra.Command{
-		Use:     "aoc2023",
-		Short:   "Advent of Code 2022 Solutions",
-		Long:    "Golang implementations for the 2022 Advent of Code problems",
+		Use:     "aoc2024",
+		Short:   "Advent of Code 2024 Solutions",
+		Long:    "Golang implementations for the 2024 Advent of Code problems",
 		Example: "go run main.go 1 a -i ./challenge/day1/input.txt",
 		Args:    cobra.ExactArgs(1),
 		PersistentPreRun: func(_ *cobra.Command, _ []string) {
@@ -97,8 +97,8 @@ import (
     "fmt"
     "io"
 
-    "challenge"
-	"util"
+    "AoC2024/challenge"
+	"AoC2024/util"
 	"github.com/spf13/cobra"
 )
 
