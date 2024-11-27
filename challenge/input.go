@@ -9,7 +9,7 @@ import (
 	"runtime"
 	"strings"
 
-	"github.com/nlowe/aoc2023/util"
+	"AoC2024/util"
 
 	"github.com/spf13/viper"
 )

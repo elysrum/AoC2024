@@ -1,4 +1,4 @@
-module github.com/elysrum/AoC2024
+module AoC2024
 
 go 1.23.3
 

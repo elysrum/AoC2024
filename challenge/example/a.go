@@ -6,8 +6,8 @@ import (
 
 	"github.com/spf13/cobra"
 
-	"github.com/nlowe/aoc2023/challenge"
-	"github.com/nlowe/aoc2023/util"
+	"AoC2024/challenge"
+	"AoC2024/util"
 )
 
 func aCommand() *cobra.Command {

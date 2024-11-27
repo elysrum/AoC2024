@@ -11,8 +11,8 @@ import (
 	"text/template"
 	"time"
 
-	"github.com/nlowe/aoc2023/util"
-	"github.com/nlowe/aoc2023/util/gmath"
+	"AoC2024/util"
+	"AoC2024/util/gmath"
 )
 
 var (
@@ -54,7 +54,7 @@ func main() {
 }
 
 func goimports(file string) {
-	goimports := exec.Command("goimports", "-local", "github.com/nlowe/aoc2023", "-w", file)
+	goimports := exec.Command("goimports", "-local", "github.com/elysrum/AoC2024", "-w", file)
 	if err := goimports.Run(); err != nil {
 		abort(err)
 	}
@@ -155,7 +155,7 @@ func getInput(day int) ([]byte, error) {
 		return nil, fmt.Errorf("AOC_SESSION_TOKEN not set")
 	}
 
-	req, err := http.NewRequest(http.MethodGet, fmt.Sprintf("https://adventofcode.com/2023/day/%d/input", day), nil)
+	req, err := http.NewRequest(http.MethodGet, fmt.Sprintf("https://adventofcode.com/2024/day/%d/input", day), nil)
 	if err != nil {
 		return nil, err
 	}
