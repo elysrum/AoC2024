@@ -36,7 +36,7 @@ import (
 	// "AoC2024/challenge/day24"
 	// "AoC2024/challenge/day25"
 	"AoC2024/challenge/example"
-
+)
 
 func addDays(root *cobra.Command) {
 	example.AddCommandsTo(root)
