@@ -10,15 +10,61 @@ import (
 	"github.com/spf13/cobra"
 	"github.com/spf13/viper"
 
-
-	"AoC2024/challenge/example"
 	"AoC2024/challenge/day1"
-)
+	// "AoC2024/challenge/day2"
+	// "AoC2024/challenge/day3"
+	// "AoC2024/challenge/day4"
+	// "AoC2024/challenge/day5"
+	// "AoC2024/challenge/day6"
+	// "AoC2024/challenge/day7"
+	// "AoC2024/challenge/day8"
+	// "AoC2024/challenge/day9"
+	// "AoC2024/challenge/day10"
+	// "AoC2024/challenge/day11"
+	// "AoC2024/challenge/day12"
+	// "AoC2024/challenge/day13"
+	// "AoC2024/challenge/day14"
+	// "AoC2024/challenge/day15"
+	// "AoC2024/challenge/day16"
+	// "AoC2024/challenge/day17"
+	// "AoC2024/challenge/day18"
+	// "AoC2024/challenge/day19"
+	// "AoC2024/challenge/day20"
+	// "AoC2024/challenge/day21"
+	// "AoC2024/challenge/day22"
+	// "AoC2024/challenge/day23"
+	// "AoC2024/challenge/day24"
+	// "AoC2024/challenge/day25"
+	"AoC2024/challenge/example"
+
 
 func addDays(root *cobra.Command) {
-	example.AddCommandsTo(root)	
+	example.AddCommandsTo(root)
 	day1.AddCommandsTo(root)
-
+	// day2.AddCommandsTo(root)
+	// day3.AddCommandsTo(root)
+	// day4.AddCommandsTo(root)
+	// day5.AddCommandsTo(root)
+	// day6.AddCommandsTo(root)
+	// day7.AddCommandsTo(root)
+	// day8.AddCommandsTo(root)
+	// day9.AddCommandsTo(root)
+	// day10.AddCommandsTo(root)
+	// day11.AddCommandsTo(root)
+	// day12.AddCommandsTo(root)
+	// day13.AddCommandsTo(root)
+	// day14.AddCommandsTo(root)
+	// day15.AddCommandsTo(root)
+	// day16.AddCommandsTo(root)
+	// day17.AddCommandsTo(root)
+	// day18.AddCommandsTo(root)
+	// day19.AddCommandsTo(root)
+	// day20.AddCommandsTo(root)
+	// day21.AddCommandsTo(root)
+	// day22.AddCommandsTo(root)
+	// day23.AddCommandsTo(root)
+	// day24.AddCommandsTo(root)
+	// day25.AddCommandsTo(root)
 }
 
 type prof interface {
