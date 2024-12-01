@@ -8,11 +8,16 @@ import (
 )
 
 func TestA(t *testing.T) {
-	t.Skip("Not Implemented")
 
-	input := strings.NewReader("foobar")
+	input := strings.NewReader(`3   4
+4   3
+2   5
+1   3
+3   9
+3   3
+`)
 
 	result := partA(input)
 
-	require.Equal(t, 42, result)
+	require.Equal(t, 11, result)
 }

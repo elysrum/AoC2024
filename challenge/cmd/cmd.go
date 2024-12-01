@@ -12,10 +12,12 @@ import (
 
 
 	"AoC2024/challenge/example"
+	"AoC2024/challenge/day1"
 )
 
 func addDays(root *cobra.Command) {
-	example.AddCommandsTo(root)
+	example.AddCommandsTo(root)	
+	day1.AddCommandsTo(root)
 
 }
 
