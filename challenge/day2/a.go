@@ -3,11 +3,11 @@ package day2
 import (
 	"fmt"
 	"io"
-	"slices"
 	"strings"
 
 	"AoC2024/challenge"
 	"AoC2024/util"
+	"AoC2024/util/gmath"
 
 	"github.com/spf13/cobra"
 )
@@ -26,30 +26,45 @@ func partA(input io.Reader) int {
 
 	data := challenge.Lines(input)
 
-	var list1, list2 []int
+	countSafe := 0
+	val, oldVal := 0, 0
 	for inputLine := range data {
-		linePart1, linePart2, found := strings.Cut(inputLine, " ")
+		lineParts := strings.Split(inputLine, " ")
 
-		if found {
-			//fmt.Printf("%v - %v \n", linePart1, linePart2)
-			//	fmt.Printf("%v \n", strings.Split(dataSet[i], " ")[1])
+		safe := true
+		first := true
+		increasing := 0
+		for _, element := range lineParts {
+			val = util.MustAtoI(element)
 
-			list1 = append(list1, util.MustAtoI(strings.TrimSpace(linePart1)))
-			list2 = append(list2, util.MustAtoI(strings.TrimSpace(linePart2)))
+			diff := gmath.Abs(oldVal - val)
+			if first {
+				first = false
+				oldVal = val
+				continue
+			} else if increasing == 0 {
+				if (oldVal - val) > 0 {
+					increasing = 1
+				} else {
+					increasing = -1
+				}
+			}
+
+			if safe &&
+				(diff >= 1 && diff <= 3) &&
+				((increasing == 1 && (oldVal-val) > 0) || (increasing == -1 && (oldVal-val) < 0)) {
+				safe = true
+			} else {
+				safe = false
+				continue
+			}
+
+			oldVal = val
 		}
-	}
-
-	slices.Sort(list1)
-	slices.Sort(list2)
-
-	result := 0
-	for i := 0; i < len(list1); i++ {
-		val := list1[i] - list2[i]
-		if val < 0 {
-			val = -val
+		if safe {
+			countSafe++
 		}
-		result += val
-	}
 
-	return result
+	}
+	return countSafe
 }

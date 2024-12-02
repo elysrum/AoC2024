@@ -3,10 +3,12 @@ package day2
 import (
 	"fmt"
 	"io"
+	"slices"
 	"strings"
 
 	"AoC2024/challenge"
 	"AoC2024/util"
+	"AoC2024/util/gmath"
 
 	"github.com/spf13/cobra"
 )
@@ -14,7 +16,7 @@ import (
 func bCommand() *cobra.Command {
 	return &cobra.Command{
 		Use:   "b",
-		Short: "Day 1, Problem B",
+		Short: "Day 2, Problem B",
 		Run: func(_ *cobra.Command, _ []string) {
 			fmt.Printf("Answer: %d\n", partB(challenge.InputFile()))
 		},
@@ -25,31 +27,65 @@ func partB(input io.Reader) int {
 
 	data := challenge.Lines(input)
 
-	var list1, list2 []int
-
+	countSafe := 0
+outerloop:
 	for inputLine := range data {
-		linePart1, linePart2, found := strings.Cut(inputLine, " ")
+		origLineParts := strings.Split(inputLine, " ")
+		lineParts := slices.Clone(origLineParts)
+		numParts := len(lineParts)
 
-		if found {
-			//fmt.Printf("%v - %v \n", linePart1, linePart2)
-			//	fmt.Printf("%v \n", strings.Split(dataSet[i], " ")[1])
+		if checkLine(lineParts) {
+			countSafe++
+			continue
+		} else {
+			for i := 0; i < numParts; i++ {
+				lineParts = slices.Delete(slices.Clone(origLineParts), i, i+1)
 
-			list1 = append(list1, util.MustAtoI(strings.TrimSpace(linePart1)))
-			list2 = append(list2, util.MustAtoI(strings.TrimSpace(linePart2)))
+				if checkLine(lineParts) {
+					countSafe++
+					continue outerloop
+				}
+			}
+
 		}
+
 	}
+	return countSafe
+}
 
-	result := 0
-	for i := 0; i < len(list1); i++ {
-		count := 0
-		for j := 0; j < len(list2); j++ {
-			if list1[i] == list2[j] {
-				count++
+func checkLine(lineParts []string) bool {
+	safe := true
+	first := true
+	increasing := 0
+	val, oldVal := 0, 0
 
+	for _, element := range lineParts {
+		val = util.MustAtoI(element)
+
+		diff := gmath.Abs(oldVal - val)
+		if first {
+			first = false
+			oldVal = val
+			continue
+		} else if increasing == 0 {
+			if (oldVal - val) > 0 {
+				increasing = 1
+			} else {
+				increasing = -1
 			}
 		}
-		result += list1[i] * count
+
+		if safe &&
+			(diff >= 1 && diff <= 3) &&
+			((increasing == 1 && (oldVal-val) > 0) || (increasing == -1 && (oldVal-val) < 0)) {
+			safe = true
+		} else {
+			safe = false
+			break
+		}
+
+		oldVal = val
 	}
 
-	return result
+	return safe
 }

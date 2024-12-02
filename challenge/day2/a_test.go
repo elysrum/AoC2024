@@ -9,15 +9,15 @@ import (
 
 func TestA(t *testing.T) {
 
-	input := strings.NewReader(`3   4
-4   3
-2   5
-1   3
-3   9
-3   3
+	input := strings.NewReader(`7 6 4 2 1
+1 2 7 8 9
+9 7 6 2 1
+1 3 2 4 5
+8 6 4 4 1
+1 3 6 7 9
 `)
 
 	result := partA(input)
 
-	require.Equal(t, 11, result)
+	require.Equal(t, 2, result)
 }
