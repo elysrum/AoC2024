@@ -15,7 +15,7 @@ import (
 func aCommand() *cobra.Command {
 	return &cobra.Command{
 		Use:   "a",
-		Short: "Day 1, Problem A",
+		Short: "Day 2, Problem A",
 		Run: func(_ *cobra.Command, _ []string) {
 			fmt.Printf("Answer: %d\n", partA(challenge.InputFile()))
 		},
