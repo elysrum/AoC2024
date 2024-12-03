@@ -9,15 +9,9 @@ import (
 
 func TestA(t *testing.T) {
 
-	input := strings.NewReader(`7 6 4 2 1
-1 2 7 8 9
-9 7 6 2 1
-1 3 2 4 5
-8 6 4 4 1
-1 3 6 7 9
-`)
+	input := strings.NewReader(`xmul(2,4)%&mul[3,7]!@^do_not_mul(5,5)+mul(32,64]then(mul(11,8)mul(8,5))`)
 
 	result := partA(input)
 
-	require.Equal(t, 2, result)
+	require.Equal(t, 161, result)
 }

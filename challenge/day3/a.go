@@ -3,9 +3,10 @@ package day3
 import (
 	"fmt"
 	"io"
-	"strings"
+	"regexp"
 
 	"AoC2024/challenge"
+	"AoC2024/util"
 
 	"github.com/spf13/cobra"
 )
@@ -24,10 +25,17 @@ func partA(input io.Reader) int {
 
 	data := challenge.Lines(input)
 
+	re := regexp.MustCompile("mul\\((\\d+),(\\d+)\\)")
+
 	result := 0
 	for inputLine := range data {
-		lineParts := strings.Split(inputLine, " ")
-		fmt.Printf("%v\n", lineParts)
+		matches := re.FindAllStringSubmatch(inputLine, -1)
+		for _, match := range matches {
+			num1 := util.MustAtoI(match[1])
+			num2 := util.MustAtoI(match[2])
+
+			result += num1 * num2
+		}
 	}
 	return result
 }
