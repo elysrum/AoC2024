@@ -1,3 +1,6 @@
+Note:  Shamelessly stole Nick Lowes Go Framework from : https://github.com/nlowe/aoc2023
+
+
 # Advent of Code 2023
 
 [![](https://github.com/nlowe/aoc2023/workflows/CI/badge.svg)](https://github.com/nlowe/aoc2023/actions) [![Coverage Status](https://coveralls.io/repos/github/nlowe/aoc2023/badge.svg?branch=master)](https://coveralls.io/github/nlowe/aoc2023?branch=master) [![Go Report Card](https://goreportcard.com/badge/github.com/nlowe/aoc2023)](https://goreportcard.com/report/github.com/nlowe/aoc2023) [![License](https://img.shields.io/badge/license-MIT-brightgreen)](./LICENSE)
