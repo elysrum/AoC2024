@@ -1,15 +1,13 @@
-Note:  Shamelessly stole Nick Lowes Go Framework from : https://github.com/nlowe/aoc2023
+Note:  Shamelessly stole Nathan Lowes Go Framework for AoC from : https://github.com/nlowe/aoc2023
 
 
-# Advent of Code 2023
+# Advent of Code 2024
 
-[![](https://github.com/nlowe/aoc2023/workflows/CI/badge.svg)](https://github.com/nlowe/aoc2023/actions) [![Coverage Status](https://coveralls.io/repos/github/nlowe/aoc2023/badge.svg?branch=master)](https://coveralls.io/github/nlowe/aoc2023?branch=master) [![Go Report Card](https://goreportcard.com/badge/github.com/nlowe/aoc2023)](https://goreportcard.com/report/github.com/nlowe/aoc2023) [![License](https://img.shields.io/badge/license-MIT-brightgreen)](./LICENSE)
-
-Solutions for the 2023 Advent of Code
+Solutions for the 2024 Advent of Code
 
 ## Building
 
-This project makes use of Go 1.21.
+This project makes use of Go 1.23.
 
 ```bash
 go mod download
