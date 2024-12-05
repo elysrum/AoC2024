@@ -6,8 +6,8 @@ import "github.com/spf13/cobra"
 
 func AddCommandsTo(root *cobra.Command) {
 	day := &cobra.Command{
-		Use:   "4",
-		Short: "Problems for Day 4",
+		Use:   "5",
+		Short: "Problems for Day 5",
 	}
 
 	day.AddCommand(aCommand())
