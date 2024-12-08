@@ -3,10 +3,8 @@ package day6
 import (
 	"fmt"
 	"io"
-	"strings"
 
 	"AoC2024/challenge"
-	"AoC2024/util"
 
 	"github.com/spf13/cobra"
 )
@@ -23,35 +21,53 @@ func aCommand() *cobra.Command {
 
 func partA(input io.Reader) int {
 
-	var dataPart []string
-	for dataLine := range challenge.Sections(input) {
-		dataPart = append(dataPart, dataLine)
+	type Point struct {
+		row int
+		col int
 	}
 
-	pageRules := make(map[string]bool)
-
-	for _, rule := range strings.Split(dataPart[0], "\n") {
-		pageRules[rule] = true
+	type Guard struct {
+		direction Point
+		position  Point
 	}
+
+	data := challenge.Lines(input)
 
 	result := 0
-	for _, line := range strings.Split(strings.Trim(dataPart[1], "\n"), "\n") {
-		pages := strings.Split(line, ",")
 
-		failed := false
-		for i := 0; !failed && i <= len(pages)-1; i++ {
-			for j := i + 1; !failed && j <= len(pages)-1; j++ {
+	var grid [][]rune
 
-				lookup := pages[i] + "|" + pages[j]
+	NORTH := Point{-1, 0}
+	EAST := Point{0, 1}
+	SOUTH := Point{1, 0}
+	WEST := Point{0, -1}
 
-				if !pageRules[lookup] {
-					failed = true
-				}
+	trail := make(map[Guard]bool)
+
+	var guard = Point{}
+
+	rowIndex := 0
+	for inputLine := range data {
+		row := make([]rune, len(inputLine))
+		for cellIndex, cell := range inputLine {
+			row[cellIndex] = cell
+			// find the guard
+			if cell == '^' || cell == 'v' || cell == '<' || cell == '>' {
+				guard.row = rowIndex
+				guard.col = cellIndex
 			}
 		}
-		if !failed {
-			result += util.MustAtoI(pages[(len(pages) / 2)])
-		}
+		grid = append(grid, row)
+		rowIndex += 1
+	}
+
+	numRows := len(grid)
+	numCols := len(grid[0])
+
+	// Loop until guard goes out of bounds
+	for {
+		// add current location to trail
+		trail[]
 	}
 
 	return result
