@@ -3,8 +3,11 @@ package day7
 import (
 	"fmt"
 	"io"
+	"slices"
+	"strings"
 
 	"AoC2024/challenge"
+	"AoC2024/util"
 
 	"github.com/spf13/cobra"
 )
@@ -21,86 +24,54 @@ func aCommand() *cobra.Command {
 
 func partA(input io.Reader) int {
 
-	type Point struct {
-		row int
-		col int
-	}
-
 	data := challenge.Lines(input)
 
 	result := 0
 
-	var grid [][]rune
+	for line := range data {
 
-	NORTH := Point{-1, 0}
-	EAST := Point{0, 1}
-	SOUTH := Point{1, 0}
-	WEST := Point{0, -1}
+		strResult := strings.Split(line, ":")
+		tgtResult := util.MustAtoI(strings.Trim(strResult[0], " "))
+		strValues := strings.Split(strings.Trim(strResult[1], " "), " ")
 
-	trail := make(map[Point]int)
+		srcValues := make([]int, len(strValues))
+		for idx, val := range strValues {
 
-	var guard = Point{}
-
-	direction := NORTH
-
-	rowIndex := 0
-	for inputLine := range data {
-		row := make([]rune, len(inputLine))
-		for cellIndex, cell := range inputLine {
-			row[cellIndex] = cell
-			// find the guard
-			if cell == '^' || cell == 'v' || cell == '<' || cell == '>' {
-				switch cell {
-				case '^':
-					direction = NORTH
-				case '>':
-					direction = EAST
-				case 'v':
-					direction = SOUTH
-				case '<':
-					direction = WEST
-				}
-				guard.row = rowIndex
-				guard.col = cellIndex
-			}
+			srcValues[idx] = util.MustAtoI(strings.Trim(val, " "))
 		}
-		grid = append(grid, row)
-		rowIndex += 1
+
+		operators := len(srcValues) - 1
+
+		startOp := make([]rune, operators)
+
+		for i := 0; i < operators; i++ {
+			startOp[i] = '+'
+		}
+
+		if calculate(tgtResult, srcValues) {
+			result += tgtResult
+		}
+
 	}
-
-	numRows := len(grid)
-	numCols := len(grid[0])
-
-	// Loop until guard goes out of bounds
-	for {
-		// add current location to trail
-		trail[guard] += 1
-
-		// Is next step out of bounds?  If so finish
-		if guard.col+direction.col == numCols || guard.col+direction.col < 0 ||
-			guard.row+direction.row == numRows || guard.row+direction.row < 0 {
-			break
-		}
-		// Is next step an obstacle, if so, change direction
-		if grid[guard.row+direction.row][guard.col+direction.col] == '#' {
-			switch {
-			case direction == NORTH:
-				direction = EAST
-			case direction == EAST:
-				direction = SOUTH
-			case direction == SOUTH:
-				direction = WEST
-			case direction == WEST:
-				direction = NORTH
-			}
-		}
-
-		// Make next step
-		guard.row += direction.row
-		guard.col += direction.col
-	}
-
-	result = len(trail)
-
 	return result
+
+}
+
+func calculate(tgtValue int, srcValues []int) bool {
+
+	newSrc := make([]int, 1)
+
+	if len(srcValues) == 1 {
+		return srcValues[0] == tgtValue
+	}
+	newSrc[0] = srcValues[0] + srcValues[1]
+	if calculate(tgtValue, slices.Concat(newSrc, srcValues[2:])) {
+		return true
+	}
+	newSrc[0] = srcValues[0] * srcValues[1]
+	if calculate(tgtValue, slices.Concat(newSrc, srcValues[2:])) {
+		return true
+	}
+	return false
+
 }
