@@ -1,4 +1,4 @@
-package day7
+package day8
 
 import (
 	"fmt"
@@ -15,7 +15,7 @@ import (
 func aCommand() *cobra.Command {
 	return &cobra.Command{
 		Use:   "a",
-		Short: "Day 7, Problem A",
+		Short: "Day 8, Problem A",
 		Run: func(_ *cobra.Command, _ []string) {
 			fmt.Printf("Answer: %d\n", partA(challenge.InputFile()))
 		},

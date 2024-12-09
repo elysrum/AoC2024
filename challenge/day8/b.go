@@ -1,4 +1,4 @@
-package day7
+package day8
 
 import (
 	"fmt"
@@ -12,18 +12,17 @@ import (
 	"github.com/spf13/cobra"
 )
 
-func aCommand() *cobra.Command {
+func bCommand() *cobra.Command {
 	return &cobra.Command{
-		Use:   "a",
-		Short: "Day 7, Problem A",
+		Use:   "b",
+		Short: "Day 8, Problem B",
 		Run: func(_ *cobra.Command, _ []string) {
-			fmt.Printf("Answer: %d\n", partA(challenge.InputFile()))
+			fmt.Printf("Answer: %d\n", partB(challenge.InputFile()))
 		},
 	}
 }
 
-func partA(input io.Reader) int {
-
+func partB(input io.Reader) int {
 	data := challenge.Lines(input)
 
 	result := 0
@@ -48,7 +47,7 @@ func partA(input io.Reader) int {
 			startOp[i] = '+'
 		}
 
-		if calculate(tgtResult, srcValues) {
+		if calculateB(tgtResult, srcValues) {
 			result += tgtResult
 		}
 
@@ -57,7 +56,7 @@ func partA(input io.Reader) int {
 
 }
 
-func calculate(tgtValue int, srcValues []int) bool {
+func calculateB(tgtValue int, srcValues []int) bool {
 
 	newSrc := make([]int, 1)
 
@@ -65,11 +64,15 @@ func calculate(tgtValue int, srcValues []int) bool {
 		return srcValues[0] == tgtValue
 	}
 	newSrc[0] = srcValues[0] + srcValues[1]
-	if calculate(tgtValue, slices.Concat(newSrc, srcValues[2:])) {
+	if calculateB(tgtValue, slices.Concat(newSrc, srcValues[2:])) {
 		return true
 	}
 	newSrc[0] = srcValues[0] * srcValues[1]
-	if calculate(tgtValue, slices.Concat(newSrc, srcValues[2:])) {
+	if calculateB(tgtValue, slices.Concat(newSrc, srcValues[2:])) {
+		return true
+	}
+	newSrc[0] = util.MustAtoI(fmt.Sprintf("%d%d", srcValues[0], srcValues[1]))
+	if calculateB(tgtValue, slices.Concat(newSrc, srcValues[2:])) {
 		return true
 	}
 	return false
