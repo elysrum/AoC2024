@@ -22,5 +22,5 @@ func TestB(t *testing.T) {
 
 	result := partB(input)
 
-	require.Equal(t, 123, result)
+	require.Equal(t, 6, result)
 }
