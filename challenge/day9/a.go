@@ -1,10 +1,12 @@
 package day9
 
 import (
+	"container/list"
 	"fmt"
 	"io"
 
 	"AoC2024/challenge"
+	"AoC2024/util"
 
 	"github.com/spf13/cobra"
 )
@@ -21,77 +23,96 @@ func aCommand() *cobra.Command {
 
 func partA(input io.Reader) int {
 
-	type Point struct {
-		row int
-		col int
+	type DiskBlock struct {
+		blockNumber int
+		blockType   int // File = 0, FS =
+		noBlocks    int
 	}
 
 	data := challenge.Lines(input)
 
 	result := 0
+	blocks := list.New()
 
-	// Create Grid from input data
-	var grid [][]rune
-
+	// Create the initial blocks array
 	for inputLine := range data {
-		row := make([]rune, len(inputLine))
-		for cellIndex, cell := range inputLine {
-			row[cellIndex] = cell
-		}
 
-		grid = append(grid, row)
-	}
-
-	R := len(grid)
-	C := len(grid[0])
-
-	antennas := make(map[rune][]Point)
-
-	// Iterate over Grid, store each antenna and every location it is found at
-	for row := 0; row < R; row++ {
-		for col := 0; col < C; col++ {
-			location := Point{row, col}
-			ant := grid[row][col]
-			if ant != '.' {
-				antLocs := antennas[ant]
-				antLocs = append(antLocs, location)
-				antennas[ant] = antLocs
-			}
-		}
-	}
-
-	antinodes := make(map[Point]bool)
-
-	// iterate over antennas and then check each point against each other point
-	for _, antennaLocations := range antennas {
-
-		for i := 0; i < len(antennaLocations); i++ {
-			for j := i + 1; j < len(antennaLocations); j++ {
-
-				r1 := antennaLocations[i].row
-				c1 := antennaLocations[i].col
-
-				r2 := antennaLocations[j].row
-				c2 := antennaLocations[j].col
-
-				r3 := (2 * r1) - r2
-				c3 := (2 * c1) - c2
-
-				r4 := (2 * r2) - r1
-				c4 := (2 * c2) - c1
-
-				antinodes[Point{row: r3, col: c3}] = true
-				antinodes[Point{row: r4, col: c4}] = true
+		blockIndex := 0
+		for idx, cell := range inputLine {
+			val := util.MustAtoI(string(cell))
+			blockType := (idx % 2)
+			var block DiskBlock
+			if blockType == 0 {
+				block = DiskBlock{blockType: blockType, blockNumber: blockIndex, noBlocks: val}
+				blockIndex += 1
+			} else {
+				block = DiskBlock{blockType: blockType, blockNumber: -1, noBlocks: val}
 
 			}
+			blocks.PushBack(block)
+
 		}
 	}
 
-	// iterate over all antinodes and only count those in bounds
-	for point, _ := range antinodes {
-		if 0 <= point.row && point.row < R &&
-			0 <= point.col && point.col < C {
-			result += 1
+	// Loop over free space forwards
+	var fsBlock DiskBlock
+	var fBlock DiskBlock
+
+nextFreespace:
+	for fs := blocks.Front(); fs != nil; fs = fs.Next() {
+
+		fsBlock = fs.Value.(DiskBlock)
+
+		if fsBlock.blockType == 1 && fsBlock.noBlocks > 0 {
+			// Loop over files backwards
+			for f := blocks.Back(); f != nil; f = f.Prev() {
+				fBlock = f.Value.(DiskBlock)
+				// Its a File
+				if fBlock.blockType == 0 && fBlock.noBlocks > 0 {
+
+					// FS has enough Space to hold file, split FS and delete file block
+					if fsBlock.noBlocks >= fBlock.noBlocks {
+						remainder := fsBlock.noBlocks - fBlock.noBlocks
+						if remainder > 0 {
+							// split the FS block
+							newBlock := DiskBlock{blockType: 1, blockNumber: -1, noBlocks: remainder}
+							blocks.InsertAfter(newBlock, fs)
+
+						}
+						fs.Value = fBlock
+						blocks.Remove(f)
+
+						// More FS available, on with next file
+
+					} else { // FS does not have enough space, convert block to File, split file
+						remainder := fBlock.noBlocks - fsBlock.noBlocks
+
+						newFBlock := DiskBlock{blockType: fBlock.blockType, blockNumber: fBlock.blockNumber, noBlocks: remainder}
+						newFSBlock := DiskBlock{blockType: fBlock.blockType, blockNumber: fBlock.blockNumber, noBlocks: fsBlock.noBlocks}
+
+						//Convert fs to f
+						fs.Value = newFSBlock
+						f.Value = newFBlock
+
+						// Filled FS, need to grab next one.
+						continue nextFreespace
+					}
+				}
+
+			}
+		}
+
+	}
+
+	idx := 0
+	for e := blocks.Front(); e != nil; e = e.Next() {
+		block := e.Value.(DiskBlock)
+		if block.blockType == 0 {
+			blocks := block.noBlocks
+			for i := 0; i < blocks; i++ {
+				result = result + (idx * block.blockNumber)
+				idx += 1
+			}
 		}
 	}
 
