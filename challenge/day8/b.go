@@ -3,11 +3,8 @@ package day8
 import (
 	"fmt"
 	"io"
-	"slices"
-	"strings"
 
 	"AoC2024/challenge"
-	"AoC2024/util"
 
 	"github.com/spf13/cobra"
 )
@@ -23,58 +20,77 @@ func bCommand() *cobra.Command {
 }
 
 func partB(input io.Reader) int {
+
+	type Point struct {
+		row int
+		col int
+	}
+
 	data := challenge.Lines(input)
 
-	result := 0
+	// Create Grid from input data
+	var grid [][]rune
 
-	for line := range data {
-
-		strResult := strings.Split(line, ":")
-		tgtResult := util.MustAtoI(strings.Trim(strResult[0], " "))
-		strValues := strings.Split(strings.Trim(strResult[1], " "), " ")
-
-		srcValues := make([]int, len(strValues))
-		for idx, val := range strValues {
-
-			srcValues[idx] = util.MustAtoI(strings.Trim(val, " "))
+	for inputLine := range data {
+		row := make([]rune, len(inputLine))
+		for cellIndex, cell := range inputLine {
+			row[cellIndex] = cell
 		}
 
-		operators := len(srcValues) - 1
+		grid = append(grid, row)
+	}
 
-		startOp := make([]rune, operators)
+	R := len(grid)
+	C := len(grid[0])
 
-		for i := 0; i < operators; i++ {
-			startOp[i] = '+'
+	antennas := make(map[rune][]Point)
+
+	// Iterate over Grid, store each antenna and every location it is found at
+	for row := 0; row < R; row++ {
+		for col := 0; col < C; col++ {
+			location := Point{row, col}
+			ant := grid[row][col]
+			if ant != '.' {
+				antLocs := antennas[ant]
+				antLocs = append(antLocs, location)
+				antennas[ant] = antLocs
+			}
 		}
+	}
 
-		if calculateB(tgtResult, srcValues) {
-			result += tgtResult
+	antinodes := make(map[Point]bool)
+
+	// iterate over antennas and then check each point against each other point
+	for _, antennaLocations := range antennas {
+
+		for i := 0; i < len(antennaLocations); i++ {
+			for j := 0; j < len(antennaLocations); j++ {
+				if i == j {
+					continue
+				}
+				r1 := antennaLocations[i].row
+				c1 := antennaLocations[i].col
+
+				r2 := antennaLocations[j].row
+				c2 := antennaLocations[j].col
+
+				// Difference between antenna
+				dr := r2 - r1
+				dc := c2 - c1
+
+				targetRow := r1
+				targetCol := c1
+
+				for 0 <= targetRow && targetRow < R &&
+					0 <= targetCol && targetCol < C {
+					antinodes[Point{row: targetRow, col: targetCol}] = true
+					targetRow += dr
+					targetCol += dc
+				}
+
+			}
 		}
-
 	}
-	return result
 
-}
-
-func calculateB(tgtValue int, srcValues []int) bool {
-
-	newSrc := make([]int, 1)
-
-	if len(srcValues) == 1 {
-		return srcValues[0] == tgtValue
-	}
-	newSrc[0] = srcValues[0] + srcValues[1]
-	if calculateB(tgtValue, slices.Concat(newSrc, srcValues[2:])) {
-		return true
-	}
-	newSrc[0] = srcValues[0] * srcValues[1]
-	if calculateB(tgtValue, slices.Concat(newSrc, srcValues[2:])) {
-		return true
-	}
-	newSrc[0] = util.MustAtoI(fmt.Sprintf("%d%d", srcValues[0], srcValues[1]))
-	if calculateB(tgtValue, slices.Concat(newSrc, srcValues[2:])) {
-		return true
-	}
-	return false
-
+	return len(antinodes)
 }
