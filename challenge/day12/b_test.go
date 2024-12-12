@@ -7,11 +7,56 @@ import (
 	"github.com/stretchr/testify/require"
 )
 
-func TestB(t *testing.T) {
+func TestB1(t *testing.T) {
 
-	input := strings.NewReader(`125 17`)
+	input := strings.NewReader(`AAAA
+BBCD
+BBCC
+EEEC`)
 
 	result := partB(input)
 
-	require.Equal(t, 65601038650482, result)
+	require.Equal(t, 80, result)
+}
+func TestB2(t *testing.T) {
+
+	input := strings.NewReader(`EEEEE
+EXXXX
+EEEEE
+EXXXX
+EEEEE`)
+
+	result := partB(input)
+
+	require.Equal(t, 236, result)
+}
+func TestB3(t *testing.T) {
+
+	input := strings.NewReader(`AAAAAA
+AAABBA
+AAABBA
+ABBAAA
+ABBAAA
+AAAAAA`)
+
+	result := partB(input)
+
+	require.Equal(t, 368, result)
+}
+func TestB4(t *testing.T) {
+
+	input := strings.NewReader(`RRRRIICCFF
+RRRRIICCCF
+VVRRRCCFFF
+VVRCCCJFFF
+VVVVCJJCFE
+VVIVCCJJEE
+VVIIICJJEE
+MIIIIIJJEE
+MIIISIJEEE
+MMMISSJEEE`)
+
+	result := partB(input)
+
+	require.Equal(t, 1206, result)
 }
