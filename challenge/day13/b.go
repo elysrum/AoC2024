@@ -3,8 +3,8 @@ package day13
 import (
 	"fmt"
 	"io"
-	"strconv"
-	"strings"
+	"math"
+	"regexp"
 
 	"AoC2024/challenge"
 	"AoC2024/util"
@@ -22,66 +22,41 @@ func bCommand() *cobra.Command {
 	}
 }
 
-type Store struct {
-	stone int
-	steps int
-}
-
-var cache map[Store]int
-
 func partB(input io.Reader) int {
+	re, err := regexp.Compile("\\d+")
+	if err != nil {
+		panic(err)
+	}
 
-	data := challenge.Lines(input)
+	totalCost := 0
 
-	var stones []int
-	for line := range data {
-		for _, stone := range strings.Split(line, " ") {
+	// Finally a math problem
+	data := challenge.Sections(input)
 
-			stones = append(stones, util.MustAtoI(stone))
+	for block := range data {
 
+		items := re.FindAllString(block, -1)
+
+		ax := float64(util.MustAtoI(items[0]))
+		ay := float64(util.MustAtoI(items[1]))
+		bx := float64(util.MustAtoI(items[2]))
+		by := float64(util.MustAtoI(items[3]))
+		tx := float64(util.MustAtoI(items[4]))
+		ty := float64(util.MustAtoI(items[5]))
+		tx += 10000000000000.0
+		ty += 10000000000000.0
+
+		countA := (tx*by - ty*bx) / (ax*by - ay*bx)
+		countB := (tx - ax*countA) / bx
+
+		// Are countA and countB whole numbers?
+		truncA := math.Trunc(countA)
+		truncB := math.Trunc(countB)
+		if truncA == countA && truncB == countB {
+
+			totalCost += int(countA*3 + countB)
 		}
+
 	}
-
-	cache = make(map[Store]int)
-
-	result := 0
-	for _, stone := range stones {
-		result += processStones(stone, 75)
-	}
-
-	return result
-}
-
-func processStones(stone int, steps int) int {
-
-	if steps == 0 {
-		return 1
-	}
-
-	result, ok := cache[Store{stone: stone, steps: steps}]
-
-	if ok {
-		return result
-	}
-
-	stringStone := strconv.Itoa(stone)
-	result = 0
-
-	if stone == 0 {
-		result = processStones(1, steps-1)
-	} else if (len(stringStone) % 2) == 0 {
-
-		mid := len(stringStone) / 2
-		left := util.MustAtoI(stringStone[0:mid])
-		right := util.MustAtoI(stringStone[mid:])
-
-		result = processStones(left, steps-1) + processStones(right, steps-1)
-	} else {
-		result = processStones(stone*2024, steps-1)
-	}
-
-	cache[Store{stone: stone, steps: steps}] = result
-
-	return result
-
+	return totalCost
 }

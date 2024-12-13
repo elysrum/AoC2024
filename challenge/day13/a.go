@@ -5,9 +5,8 @@ import (
 	"AoC2024/util"
 	"fmt"
 	"io"
-	"slices"
-	"strconv"
-	"strings"
+	"math"
+	"regexp"
 
 	"github.com/spf13/cobra"
 )
@@ -24,52 +23,40 @@ func aCommand() *cobra.Command {
 
 func partA(input io.Reader) int {
 
-	data := challenge.Lines(input)
-
-	var stones []int
-	for line := range data {
-		for _, stone := range strings.Split(line, " ") {
-
-			fmt.Printf("%v\n", stone)
-			stones = append(stones, util.MustAtoI(stone))
-
-		}
+	re, err := regexp.Compile("\\d+")
+	if err != nil {
+		panic(err)
 	}
 
-	for blink := 0; blink < 25; blink++ {
+	totalCost := 0
 
-		idx := 0
-		S := len(stones)
-		for idx < S {
+	// Finally a math problem
+	data := challenge.Sections(input)
 
-			stone := stones[idx]
-			stringStone := strconv.Itoa(stone)
+	for block := range data {
 
-			if stone == 0 {
-				stones[idx] = 1
-			} else if (len(stringStone) % 2) == 0 {
+		items := re.FindAllString(block, -1)
 
-				mid := len(stringStone) / 2
-				left := util.MustAtoI(stringStone[0:mid])
-				right := util.MustAtoI(stringStone[mid:])
+		ax := float64(util.MustAtoI(items[0]))
+		ay := float64(util.MustAtoI(items[1]))
+		bx := float64(util.MustAtoI(items[2]))
+		by := float64(util.MustAtoI(items[3]))
+		tx := float64(util.MustAtoI(items[4]))
+		ty := float64(util.MustAtoI(items[5]))
 
-				stones[idx] = left
-				stones = slices.Insert(stones, idx+1, right)
+		countA := (tx*by - ty*bx) / (ax*by - ay*bx)
+		countB := (tx - ax*countA) / bx
 
-				S = len(stones)
+		// Are countA and countB whole numbers?
+		truncA := math.Trunc(countA)
+		truncB := math.Trunc(countB)
+		if truncA == countA && truncB == countB {
+			if truncA <= 100 && truncB <= 100 {
 
-				// make sure we skip over the stone we just added
-				idx += 1
-
-			} else {
-				stones[idx] = stone * 2024
+				totalCost += int(countA*3 + countB)
 			}
-
-			idx += 1
-
 		}
 
 	}
-
-	return len(stones)
+	return totalCost
 }
