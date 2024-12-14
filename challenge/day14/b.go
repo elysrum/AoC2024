@@ -3,7 +3,7 @@ package day14
 import (
 	"fmt"
 	"io"
-	"math"
+
 	"regexp"
 
 	"AoC2024/challenge"
@@ -23,40 +23,75 @@ func bCommand() *cobra.Command {
 }
 
 func partB(input io.Reader) int {
-	re, err := regexp.Compile("\\d+")
+
+	type Robot struct {
+		x  int
+		y  int
+		vx int
+		vy int
+	}
+
+	re, err := regexp.Compile("-?\\d+")
 	if err != nil {
 		panic(err)
 	}
 
-	totalCost := 0
+	R := 103
+	C := 101
 
-	// Finally a math problem
-	data := challenge.Sections(input)
+	S := R * C
 
-	for block := range data {
+	robots := make([]Robot, 0)
+	data := challenge.Lines(input)
 
-		items := re.FindAllString(block, -1)
+	for line := range data {
 
-		ax := float64(util.MustAtoI(items[0]))
-		ay := float64(util.MustAtoI(items[1]))
-		bx := float64(util.MustAtoI(items[2]))
-		by := float64(util.MustAtoI(items[3]))
-		tx := float64(util.MustAtoI(items[4]))
-		ty := float64(util.MustAtoI(items[5]))
-		tx += 10000000000000.0
-		ty += 10000000000000.0
+		items := re.FindAllString(line, -1)
 
-		countA := (tx*by - ty*bx) / (ax*by - ay*bx)
-		countB := (tx - ax*countA) / bx
+		robots = append(robots, Robot{
+			x:  util.MustAtoI(items[0]),
+			y:  util.MustAtoI(items[1]),
+			vx: util.MustAtoI(items[2]),
+			vy: util.MustAtoI(items[3]),
+		})
+	}
 
-		// Are countA and countB whole numbers?
-		truncA := math.Trunc(countA)
-		truncB := math.Trunc(countB)
-		if truncA == countA && truncB == countB {
+	for s := 0; s < S; s++ {
 
-			totalCost += int(countA*3 + countB)
+		grid := make([][]int, R)
+
+		for idx := range grid {
+			grid[idx] = make([]int, C)
 		}
 
+		for _, robot := range robots {
+			newX := (robot.x + robot.vx*s) % C
+			newY := (robot.y + robot.vy*s) % R
+
+			if newX < 0 {
+				newX = C + newX
+			}
+			if newY < 0 {
+				newY = R + newY
+			}
+
+			grid[newY][newX] += 1
+		}
+
+		fmt.Printf("%v\n", s)
+		for x := 0; x < C; x++ {
+			for y := 0; y < R; y++ {
+				if grid[y][x] == 0 {
+					fmt.Printf(".")
+				} else {
+					fmt.Printf("#")
+				}
+
+			}
+			fmt.Printf("\n")
+		}
 	}
-	return totalCost
+
+	// Capture output and examine with mark 1 eye ball
+	return 0
 }

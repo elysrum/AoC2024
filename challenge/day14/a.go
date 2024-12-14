@@ -5,7 +5,7 @@ import (
 	"AoC2024/util"
 	"fmt"
 	"io"
-	"math"
+
 	"regexp"
 
 	"github.com/spf13/cobra"
@@ -23,40 +23,80 @@ func aCommand() *cobra.Command {
 
 func partA(input io.Reader) int {
 
-	re, err := regexp.Compile("\\d+")
+	re, err := regexp.Compile("-?\\d+")
 	if err != nil {
 		panic(err)
 	}
 
-	totalCost := 0
+	R := 103
+	C := 101
+	// R = 7
+	// C = 11
 
-	// Finally a math problem
-	data := challenge.Sections(input)
+	S := 100
 
-	for block := range data {
+	grid := make([][]int, R)
 
-		items := re.FindAllString(block, -1)
+	for idx := range grid {
+		grid[idx] = make([]int, C)
+	}
 
-		ax := float64(util.MustAtoI(items[0]))
-		ay := float64(util.MustAtoI(items[1]))
-		bx := float64(util.MustAtoI(items[2]))
-		by := float64(util.MustAtoI(items[3]))
-		tx := float64(util.MustAtoI(items[4]))
-		ty := float64(util.MustAtoI(items[5]))
+	data := challenge.Lines(input)
 
-		countA := (tx*by - ty*bx) / (ax*by - ay*bx)
-		countB := (tx - ax*countA) / bx
+	for line := range data {
 
-		// Are countA and countB whole numbers?
-		truncA := math.Trunc(countA)
-		truncB := math.Trunc(countB)
-		if truncA == countA && truncB == countB {
-			if truncA <= 100 && truncB <= 100 {
+		items := re.FindAllString(line, -1)
 
-				totalCost += int(countA*3 + countB)
-			}
+		x := util.MustAtoI(items[0])
+		y := util.MustAtoI(items[1])
+		vx := util.MustAtoI(items[2])
+		vy := util.MustAtoI(items[3])
+
+		newX := (x + vx*S) % C
+		newY := (y + vy*S) % R
+
+		if newX < 0 {
+			newX = C + newX
+		}
+		if newY < 0 {
+			newY = R + newY
 		}
 
+		grid[newY][newX] += 1
 	}
-	return totalCost
+
+	midx := C / 2
+	midy := R / 2
+
+	quad1 := 0
+	quad2 := 0
+	quad3 := 0
+	quad4 := 0
+
+	for x := 0; x < C; x++ {
+		for y := 0; y < R; y++ {
+			if grid[y][x] > 0 {
+
+				if x < midx {
+					if y < midy {
+						quad1 += grid[y][x]
+					}
+					if y > midy {
+						quad2 += grid[y][x]
+					}
+				}
+				if x > midx {
+					if y < midy {
+						quad3 += grid[y][x]
+					}
+					if y > midy {
+						quad4 += grid[y][x]
+					}
+
+				}
+			}
+		}
+	}
+
+	return quad1 * quad2 * quad3 * quad4
 }
