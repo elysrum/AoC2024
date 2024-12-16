@@ -25,7 +25,7 @@ import (
 	"AoC2024/challenge/day13"
 	"AoC2024/challenge/day14"
 	"AoC2024/challenge/day15"
-	// "AoC2024/challenge/day16"
+	"AoC2024/challenge/day16"
 	// "AoC2024/challenge/day17"
 	// "AoC2024/challenge/day18"
 	// "AoC2024/challenge/day19"
@@ -55,7 +55,7 @@ func addDays(root *cobra.Command) {
 	day13.AddCommandsTo(root)
 	day14.AddCommandsTo(root)
 	day15.AddCommandsTo(root)
-	// day16.AddCommandsTo(root)
+	day16.AddCommandsTo(root)
 	// day17.AddCommandsTo(root)
 	// day18.AddCommandsTo(root)
 	// day19.AddCommandsTo(root)
