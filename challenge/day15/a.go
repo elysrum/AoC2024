@@ -2,11 +2,9 @@ package day15
 
 import (
 	"AoC2024/challenge"
-	"AoC2024/util"
 	"fmt"
 	"io"
-
-	"regexp"
+	"strings"
 
 	"github.com/spf13/cobra"
 )
@@ -21,82 +19,141 @@ func aCommand() *cobra.Command {
 	}
 }
 
+type Point struct {
+	row int
+	col int
+}
+
 func partA(input io.Reader) int {
 
-	re, err := regexp.Compile("-?\\d+")
-	if err != nil {
-		panic(err)
-	}
-
-	R := 103
-	C := 101
-	// R = 7
-	// C = 11
-
-	S := 100
-
-	grid := make([][]int, R)
-
-	for idx := range grid {
-		grid[idx] = make([]int, C)
-	}
-
-	data := challenge.Lines(input)
+	blocks := make([]string, 0)
+	data := challenge.Sections(input)
 
 	for line := range data {
+		blocks = append(blocks, line)
 
-		items := re.FindAllString(line, -1)
-
-		x := util.MustAtoI(items[0])
-		y := util.MustAtoI(items[1])
-		vx := util.MustAtoI(items[2])
-		vy := util.MustAtoI(items[3])
-
-		newX := (x + vx*S) % C
-		newY := (y + vy*S) % R
-
-		if newX < 0 {
-			newX = C + newX
-		}
-		if newY < 0 {
-			newY = R + newY
-		}
-
-		grid[newY][newX] += 1
 	}
 
-	midx := C / 2
-	midy := R / 2
+	// result := 0
 
-	quad1 := 0
-	quad2 := 0
-	quad3 := 0
-	quad4 := 0
+	var grid [][]rune
 
-	for x := 0; x < C; x++ {
-		for y := 0; y < R; y++ {
-			if grid[y][x] > 0 {
+	var robot = Point{}
 
-				if x < midx {
-					if y < midy {
-						quad1 += grid[y][x]
-					}
-					if y > midy {
-						quad2 += grid[y][x]
-					}
-				}
-				if x > midx {
-					if y < midy {
-						quad3 += grid[y][x]
-					}
-					if y > midy {
-						quad4 += grid[y][x]
-					}
+	inputLine := strings.Split(blocks[0], "\n")
+	for rowIndex, line := range inputLine {
+		row := make([]rune, len(inputLine))
 
-				}
+		for cellIndex, cell := range line {
+			if cell == '@' {
+				robot.row = rowIndex
+				robot.col = cellIndex
+				row[cellIndex] = '.'
+
+			} else {
+				row[cellIndex] = cell
 			}
 		}
+		grid = append(grid, row)
 	}
 
-	return quad1 * quad2 * quad3 * quad4
+	steps := blocks[1]
+	NORTH := Point{-1, 0}
+	EAST := Point{0, 1}
+	SOUTH := Point{1, 0}
+	WEST := Point{0, -1}
+
+	var direction Point
+
+	for _, step := range steps {
+		switch step {
+		case '^':
+			direction = NORTH
+		case '>':
+			direction = EAST
+		case 'v':
+			direction = SOUTH
+		case '<':
+			direction = WEST
+		case '\n':
+			continue
+		}
+
+		newRow := robot.row + direction.row
+		newCol := robot.col + direction.col
+
+		// We can move freely
+		if grid[newRow][newCol] == '.' {
+			robot.row = newRow
+			robot.col = newCol
+			continue
+		}
+		// We've hit a wall, nothing doing here.
+		if grid[newRow][newCol] == '#' {
+			continue
+		}
+
+		// We've hit a barrel, push it along
+		if grid[newRow][newCol] == 'O' {
+
+			foundSpace := false
+			moreGrid := true
+			testRow := newRow
+			testCol := newCol
+			for moreGrid && !foundSpace {
+				testRow += direction.row
+				testCol += direction.col
+
+				// We've hit a wall, stop looking
+				if grid[testRow][testCol] == '#' {
+					moreGrid = false
+				}
+				// found space
+				if grid[testRow][testCol] == '.' {
+					grid[testRow][testCol] = 'O'
+					grid[newRow][newCol] = '.'
+					robot.row = newRow
+					robot.col = newCol
+					foundSpace = true
+				}
+
+			}
+
+		}
+
+	}
+
+	result := 0
+
+	for rindx, row := range grid {
+		for cindx, cell := range row {
+			if cell == 'O' {
+				result += 100*rindx + cindx
+
+			}
+
+		}
+	}
+
+	return result
+}
+
+func printGrid(grid [][]rune, robot Point) int {
+
+	count := 0
+	for ri, row := range grid {
+		for ci, cell := range row {
+
+			if cell == 'O' {
+				count++
+			}
+			if ri == robot.row && ci == robot.col {
+				fmt.Printf("@")
+			} else {
+				fmt.Printf("%v", string(cell))
+			}
+		}
+		fmt.Printf("\n")
+	}
+	return count
 }

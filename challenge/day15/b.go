@@ -3,11 +3,10 @@ package day15
 import (
 	"fmt"
 	"io"
-
-	"regexp"
+	"slices"
+	"strings"
 
 	"AoC2024/challenge"
-	"AoC2024/util"
 
 	"github.com/spf13/cobra"
 )
@@ -24,74 +23,162 @@ func bCommand() *cobra.Command {
 
 func partB(input io.Reader) int {
 
-	type Robot struct {
-		x  int
-		y  int
-		vx int
-		vy int
-	}
-
-	re, err := regexp.Compile("-?\\d+")
-	if err != nil {
-		panic(err)
-	}
-
-	R := 103
-	C := 101
-
-	S := R * C
-
-	robots := make([]Robot, 0)
-	data := challenge.Lines(input)
+	blocks := make([]string, 0)
+	data := challenge.Sections(input)
 
 	for line := range data {
+		blocks = append(blocks, line)
 
-		items := re.FindAllString(line, -1)
-
-		robots = append(robots, Robot{
-			x:  util.MustAtoI(items[0]),
-			y:  util.MustAtoI(items[1]),
-			vx: util.MustAtoI(items[2]),
-			vy: util.MustAtoI(items[3]),
-		})
 	}
 
-	for s := 0; s < S; s++ {
+	var grid [][]rune
 
-		grid := make([][]int, R)
+	var robot = Point{}
 
-		for idx := range grid {
-			grid[idx] = make([]int, C)
+	inputLine := strings.Split(blocks[0], "\n")
+	for rowIndex, line := range inputLine {
+		row := make([]rune, len(inputLine)*2)
+
+		for cellIndex, srcIndex := 0, 0; cellIndex < len(row) && srcIndex < len(line); srcIndex, cellIndex = srcIndex+1, cellIndex+2 {
+			if line[srcIndex] == '@' {
+				robot.row = rowIndex
+				robot.col = cellIndex
+				row[cellIndex] = '.'
+				row[cellIndex+1] = '.'
+
+			} else if line[srcIndex] == '#' {
+				row[cellIndex] = '#'
+				row[cellIndex+1] = '#'
+			} else if line[srcIndex] == '.' {
+				row[cellIndex] = '.'
+				row[cellIndex+1] = '.'
+			} else if line[srcIndex] == 'O' {
+				row[cellIndex] = '['
+				row[cellIndex+1] = ']'
+
+			}
 		}
 
-		for _, robot := range robots {
-			newX := (robot.x + robot.vx*s) % C
-			newY := (robot.y + robot.vy*s) % R
+		grid = append(grid, row)
+	}
 
-			if newX < 0 {
-				newX = C + newX
-			}
-			if newY < 0 {
-				newY = R + newY
-			}
+	B_printGrid(grid, robot)
 
-			grid[newY][newX] += 1
+	steps := blocks[1]
+	NORTH := Point{-1, 0}
+	EAST := Point{0, 1}
+	SOUTH := Point{1, 0}
+	WEST := Point{0, -1}
+
+	var direction Point
+
+	for _, step := range steps {
+		switch step {
+		case '^':
+			direction = NORTH
+		case '>':
+			direction = EAST
+		case 'v':
+			direction = SOUTH
+		case '<':
+			direction = WEST
+		case '\n':
+			continue
 		}
 
-		fmt.Printf("%v\n", s)
-		for x := 0; x < C; x++ {
-			for y := 0; y < R; y++ {
-				if grid[y][x] == 0 {
-					fmt.Printf(".")
-				} else {
-					fmt.Printf("#")
-				}
+		candidates := make([]Point, 1)
+		candidates[0].row = robot.row
+		candidates[0].col = robot.col
+		candidateCount := 1
+		foundSpace := true
+
+		for idx := 0; idx < candidateCount; idx++ {
+
+			newRow := candidates[idx].row + direction.row
+			newCol := candidates[idx].col + direction.col
+
+			cell := grid[newRow][newCol]
+
+			if slices.Contains(candidates, Point{row: newRow, col: newCol}) {
+				continue
+			}
+			// We've hit a wall, nothing doing here.
+			if cell == '#' {
+				foundSpace = false
+				break
+			}
+
+			// We've hit a barrel, add it to list to push later
+			if cell == '[' {
+
+				candidates = append(candidates, []Point{{row: newRow, col: newCol}, {row: newRow, col: newCol + 1}}...)
+				candidateCount += 2
 
 			}
-			fmt.Printf("\n")
+			if cell == ']' {
+				candidates = append(candidates, []Point{{row: newRow, col: newCol}, {row: newRow, col: newCol - 1}}...)
+				candidateCount += 2
+			}
+		}
+
+		if !foundSpace {
+			continue
+		}
+		gridCopy := make([][]rune, 0)
+		for _, r := range grid {
+			row := make([]rune, 0)
+			for _, c := range r {
+				row = append(row, c)
+			}
+			gridCopy = append(gridCopy, row)
+
+		}
+
+		grid[robot.row][robot.col] = '.'
+
+		for _, point := range candidates[1:] {
+			grid[point.row][point.col] = '.'
+		}
+
+		for _, point := range candidates[1:] {
+			grid[point.row+direction.row][point.col+direction.col] = gridCopy[point.row][point.col]
+		}
+
+		robot.row += direction.row
+		robot.col += direction.col
+
+	}
+
+	result := 0
+
+	for rindx, row := range grid {
+		for cindx, cell := range row {
+			if cell == '[' {
+				result += 100*rindx + cindx
+
+			}
+
 		}
 	}
 
-	// Capture output and examine with mark 1 eye ball
-	return 0
+	return result
+}
+func B_printGrid(grid [][]rune, robot Point) int {
+
+	count := 0
+	for ri, row := range grid {
+		for ci, cell := range row {
+
+			if cell == 'O' {
+				count++
+			}
+			if ri == robot.row && ci == robot.col {
+				fmt.Printf("@")
+			} else {
+				fmt.Printf("%v", string(cell))
+			}
+		}
+		fmt.Printf("\n")
+	}
+	return count
 }
