@@ -1,10 +1,9 @@
 package day16
 
 import (
+	"container/heap"
 	"fmt"
 	"io"
-	"slices"
-	"strings"
 
 	"AoC2024/challenge"
 
@@ -23,162 +22,89 @@ func bCommand() *cobra.Command {
 
 func partB(input io.Reader) int {
 
-	blocks := make([]string, 0)
-	data := challenge.Sections(input)
+	data := challenge.Lines(input)
 
-	for line := range data {
-		blocks = append(blocks, line)
-
-	}
+	var start, end Point
 
 	var grid [][]rune
 
-	var robot = Point{}
+	rowIndex := 0
+	for inputLine := range data {
+		row := make([]rune, len(inputLine))
+		for cellIndex, cell := range inputLine {
+			row[cellIndex] = cell
+			// find the guard
+			if cell == 'S' {
+				start.row = rowIndex
+				start.col = cellIndex
+			} else if cell == 'E' {
 
-	inputLine := strings.Split(blocks[0], "\n")
-	for rowIndex, line := range inputLine {
-		row := make([]rune, len(inputLine)*2)
-
-		for cellIndex, srcIndex := 0, 0; cellIndex < len(row) && srcIndex < len(line); srcIndex, cellIndex = srcIndex+1, cellIndex+2 {
-			if line[srcIndex] == '@' {
-				robot.row = rowIndex
-				robot.col = cellIndex
-				row[cellIndex] = '.'
-				row[cellIndex+1] = '.'
-
-			} else if line[srcIndex] == '#' {
-				row[cellIndex] = '#'
-				row[cellIndex+1] = '#'
-			} else if line[srcIndex] == '.' {
-				row[cellIndex] = '.'
-				row[cellIndex+1] = '.'
-			} else if line[srcIndex] == 'O' {
-				row[cellIndex] = '['
-				row[cellIndex+1] = ']'
-
+				end.row = rowIndex
+				end.col = cellIndex
 			}
-		}
 
+		}
 		grid = append(grid, row)
-	}
-
-	B_printGrid(grid, robot)
-
-	steps := blocks[1]
-	NORTH := Point{-1, 0}
-	EAST := Point{0, 1}
-	SOUTH := Point{1, 0}
-	WEST := Point{0, -1}
-
-	var direction Point
-
-	for _, step := range steps {
-		switch step {
-		case '^':
-			direction = NORTH
-		case '>':
-			direction = EAST
-		case 'v':
-			direction = SOUTH
-		case '<':
-			direction = WEST
-		case '\n':
-			continue
-		}
-
-		candidates := make([]Point, 1)
-		candidates[0].row = robot.row
-		candidates[0].col = robot.col
-		candidateCount := 1
-		foundSpace := true
-
-		for idx := 0; idx < candidateCount; idx++ {
-
-			newRow := candidates[idx].row + direction.row
-			newCol := candidates[idx].col + direction.col
-
-			cell := grid[newRow][newCol]
-
-			if slices.Contains(candidates, Point{row: newRow, col: newCol}) {
-				continue
-			}
-			// We've hit a wall, nothing doing here.
-			if cell == '#' {
-				foundSpace = false
-				break
-			}
-
-			// We've hit a barrel, add it to list to push later
-			if cell == '[' {
-
-				candidates = append(candidates, []Point{{row: newRow, col: newCol}, {row: newRow, col: newCol + 1}}...)
-				candidateCount += 2
-
-			}
-			if cell == ']' {
-				candidates = append(candidates, []Point{{row: newRow, col: newCol}, {row: newRow, col: newCol - 1}}...)
-				candidateCount += 2
-			}
-		}
-
-		if !foundSpace {
-			continue
-		}
-		gridCopy := make([][]rune, 0)
-		for _, r := range grid {
-			row := make([]rune, 0)
-			for _, c := range r {
-				row = append(row, c)
-			}
-			gridCopy = append(gridCopy, row)
-
-		}
-
-		grid[robot.row][robot.col] = '.'
-
-		for _, point := range candidates[1:] {
-			grid[point.row][point.col] = '.'
-		}
-
-		for _, point := range candidates[1:] {
-			grid[point.row+direction.row][point.col+direction.col] = gridCopy[point.row][point.col]
-		}
-
-		robot.row += direction.row
-		robot.col += direction.col
-
+		rowIndex += 1
 	}
 
 	result := 0
+	pq := make(PriorityQueue, 0)
 
-	for rindx, row := range grid {
-		for cindx, cell := range row {
-			if cell == '[' {
-				result += 100*rindx + cindx
+	visit := Visit{location: Point{row: start.row, col: start.col},
+		direction: Point{row: 0, col: 1}}
 
-			}
+	pq = append(pq, &Item{visit: visit, priority: 0})
+	seen := make(map[Visit]bool)
+	seen[visit] = true
+
+	for pq.Len() > 0 {
+		item := heap.Pop(&pq).(*Item)
+		seen[item.visit] = true
+		result = item.priority
+		direction := item.visit.direction
+
+		if grid[item.visit.location.row][item.visit.location.col] == 'E' {
+			return item.priority
+		}
+
+		// Add Keep Heading in same direction
+		newPriority := (*item).priority + 1
+		newLocation := Point{(*item).visit.location.row + direction.row, (*item).visit.location.col + direction.col}
+		newDirection := Point{(*item).visit.direction.row, (*item).visit.direction.col}
+
+		newVisit := Visit{location: newLocation, direction: newDirection}
+
+		if !seen[newVisit] && grid[newLocation.row][newLocation.col] != '#' {
+			heap.Push(&pq, &Item{priority: newPriority, visit: newVisit})
 
 		}
+
+		// Add rotate 90
+		newPriority = (*item).priority + 1000
+		newLocation = Point{(*item).visit.location.row, (*item).visit.location.col}
+		newDirection = Point{row: (*item).visit.direction.col, col: -(*item).visit.direction.row}
+
+		newVisit = Visit{location: newLocation, direction: newDirection}
+
+		if !seen[newVisit] && grid[newLocation.row][newLocation.col] != '#' {
+			heap.Push(&pq, &Item{priority: newPriority, visit: newVisit})
+
+		}
+
+		// Add rotate 270
+		newPriority = (*item).priority + 1000
+		newLocation = Point{(*item).visit.location.row, (*item).visit.location.col}
+		newDirection = Point{row: -(*item).visit.direction.col, col: (*item).visit.direction.row}
+
+		newVisit = Visit{location: newLocation, direction: newDirection}
+
+		if !seen[newVisit] && grid[newLocation.row][newLocation.col] != '#' {
+			heap.Push(&pq, &Item{priority: newPriority, visit: newVisit})
+
+		}
+
 	}
 
 	return result
-}
-func B_printGrid(grid [][]rune, robot Point) int {
-
-	count := 0
-	for ri, row := range grid {
-		for ci, cell := range row {
-
-			if cell == 'O' {
-				count++
-			}
-			if ri == robot.row && ci == robot.col {
-				fmt.Printf("@")
-			} else {
-				fmt.Printf("%v", string(cell))
-			}
-		}
-		fmt.Printf("\n")
-	}
-	return count
 }
