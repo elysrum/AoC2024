@@ -55,7 +55,7 @@ func partB(input io.Reader) int {
 		}
 	}
 
-	fmt.Printf("%v", coords[low])
+	fmt.Printf("%d,%d\n", coords[low].col, coords[low].row)
 
 	return coords[low].row*10 + coords[low].col
 
